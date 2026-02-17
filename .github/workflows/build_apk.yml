@@ -1,33 +1,34 @@
 name: Build Tik1 Ultra APK
 on:
   push:
-    branches: [ main ] # سيعمل المصنع كلما رفعت كود جديد
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4 # تحديث للإصدار 4
       
-      - name: Install Java
-        uses: actions/setup-java@v3
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'oracle'
           java-version: '17'
           
-      - name: Install Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.19.0' # تحديد إصدار مستقر
           channel: 'stable'
           
-      - name: Get dependencies
+      - name: Install dependencies
         run: flutter pub get
         
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --no-tree-shake-icons
         
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # تحديث للإصدار 4
         with:
           name: Tik1-Ultra-App
           path: build/app/outputs/flutter-apk/app-release.apk
