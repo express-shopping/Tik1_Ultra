@@ -1,0 +1,225 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
+void main() {
+  runApp(const Tik1App());
+}
+
+class Tik1App extends StatelessWidget {
+  const Tik1App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Tik1 Ultra',
+      debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('ar', 'SA'), Locale('en', 'US')],
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF010101),
+        primaryColor: const Color(0xFFFF0050), // لون تيك توك الشهير
+      ),
+      home: const MainScreen(),
+    );
+  }
+}
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    if (index == 2) {
+      _showUploadOptions();
+    } else {
+      setState(() => _selectedIndex = index);
+    }
+  }
+
+  void _showUploadOptions() async {
+    final picker = ImagePicker();
+    final video = await picker.pickVideo(source: ImageSource.gallery);
+    if (video != null) {
+      // هنا ينتقل لصفحة المعاينة (يمكنك برمجتها لاحقاً)
+      print("Selected Video: ${video.path}");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool isAr = Localizations.localeOf(context).languageCode == 'ar';
+    
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          const HomeFeed(),
+          const DiscoverPage(),
+          const SizedBox(), // مكان فارغ للزر الأوسط
+          const InboxPage(),
+          const ProfilePage(),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed, backgroundColor: Colors.black, 
+        selectedItemColor: const Color(0xFF00F2EA), // نيون بلو unselectedItemColor: 
+        Colors.white70, currentIndex: _selectedIndex, onTap: _onItemTapped, items: [
+          BottomNavigationBarItem(icon: const Icon(Icons.home_filled), label: isAr ? 
+          'الرئيسية' : 'Home'), BottomNavigationBarItem(icon: const 
+          Icon(Icons.explore_outlined), label: isAr ? 'اكتشف' : 'Discover'), 
+          BottomNavigationBarItem(
+            icon: Container( width: 45, height: 30, decoration: BoxDecoration( borderRadius: 
+                BorderRadius.circular(8), gradient: const LinearGradient(colors: 
+                [Color(0xFF00F2EA), Color(0xFFFF0050)]),
+              ), child: const Icon(Icons.add, color: Colors.black), ), label: '', ), 
+          BottomNavigationBarItem(icon: const Icon(Icons.chat_bubble_outline), label: isAr ? 
+          'البريد' : 'Inbox'), BottomNavigationBarItem(icon: const 
+          Icon(Icons.person_outline), label: isAr ? 'الملف' : 'Profile'),
+        ], ), );
+  }
+}
+// --- 1. واجهة الفيديوهات (التصميم الراقي) ---
+class HomeFeed extends StatelessWidget { const HomeFeed({super.key}); @override Widget 
+  build(BuildContext context) {
+    return PageView.builder( scrollDirection: Axis.vertical, itemBuilder: (context, index) => 
+      Stack(
+        children: [
+          // خلفية الفيديو (محاكاة)
+          Container( decoration: BoxDecoration( gradient: LinearGradient( begin: 
+                Alignment.topCenter, end: Alignment.bottomCenter, colors: 
+                [Colors.blueGrey.shade900, Colors.black],
+              ), ), child: const Center(child: Icon(Icons.play_circle_fill, size: 80, color: 
+            Colors.white24)),
+          ),
+          // أدوات التفاعل الجانبية
+          Positioned(
+            bottom: 80, right: 10,
+            child: Column(
+              children: [
+                _profileAvatar(),
+                const SizedBox(height: 20),
+                _sideAction(Icons.favorite, "1.2M", Colors.redAccent),
+                _sideAction(Icons.comment, "45k", Colors.white),
+                _sideAction(Icons.bookmark, "12k", Colors.yellowAccent),
+                _sideAction(Icons.share, "Share", Colors.white),
+              ],
+            ),
+          ),
+          // معلومات الفيديو
+          Positioned(
+            bottom: 20, left: 15, right: 80,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("@Golden_Dev", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const SizedBox(height: 10),
+                const Text("بناء تطبيق تيك توك في كالي لينكس 🔥 #Flutter #Kali #Coding", maxLines: 2),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(Icons.music_note, size: 15),
+                    Text(" الصوت الأصلي - المطور الذهبي", style: const TextStyle(fontSize: 13)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _profileAvatar() => Stack(
+    alignment: Alignment.bottomCenter,
+    children: [
+      Container(
+        padding: const EdgeInsets.all(2),
+        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+        child: const CircleAvatar(radius: 25, backgroundColor: Colors.grey),
+      ),
+      Container(
+        decoration: const BoxDecoration(color: Colors.pink, shape: BoxShape.circle),
+        child: const Icon(Icons.add, size: 15),
+      ),
+    ],
+  );
+
+  Widget _sideAction(IconData icon, String label, Color color) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 10),
+    child: Column(children: [Icon(icon, size: 35, color: color), Text(label, style: const TextStyle(fontSize: 12))]),
+  );
+}
+
+// --- 2. واجهة الملف الشخصي (Ultra Luxury) ---
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    bool isAr = Localizations.localeOf(context).languageCode == 'ar';
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent, elevation: 0,
+        title: const Text("Golden Dev 👑"),
+        centerTitle: true,
+        actions: [IconButton(icon: const Icon(Icons.menu), onPressed: () {})],
+      ),
+      body: Column(
+        children: [
+          const SizedBox(height: 20),
+          const CircleAvatar(radius: 50, backgroundColor: Colors.blueAccent),
+          const SizedBox(height: 15),
+          const Text("@Golden_Dev", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _profileStat("128", isAr ? "متابعة" : "Following"),
+              _verticalDivider(),
+              _profileStat("15.4k", isAr ? "متابعين" : "Followers"),
+              _verticalDivider(),
+              _profileStat("200k", isAr ? "تسجيلات" : "Likes"),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _btn(isAr ? "تعديل الملف" : "Edit Profile", Colors.white12),
+              const SizedBox(width: 5),
+              _btn(isAr ? "مشاركة" : "Share", Colors.white12),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Divider(color: Colors.white12),
+          // شبكة الفيديوهات
+          Expanded(
+            child: GridView.builder(
+              itemCount: 12,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 0.7, crossAxisSpacing: 2, mainAxisSpacing: 2),
+              itemBuilder: (context, index) => Container(color: Colors.white10, child: const Icon(Icons.play_arrow, color: Colors.white24)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _profileStat(String count, String label) => Column(children: [Text(count, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), Text(label, style: const TextStyle(color: Colors.white54, fontSize: 13))]);
+  Widget _verticalDivider() => Container(height: 15, width: 1, color: Colors.white24, margin: const EdgeInsets.symmetric(horizontal: 20));
+  Widget _btn(String t, Color c) => Container(padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12), decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(4)), child: Text(t, style: const TextStyle(fontWeight: FontWeight.bold)));
+}
+
+// --- 3. واجهات إضافية (Discover & Inbox) لملء التطبيق ---
+class DiscoverPage extends StatelessWidget { const DiscoverPage({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text("Discover Content Coming Soon..."))); }
+class InboxPage extends StatelessWidget { const InboxPage({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text("Messages & Notifications"))); }
+
