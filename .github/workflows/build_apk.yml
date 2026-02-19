@@ -1,5 +1,8 @@
 name: Build APK
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,5 +19,4 @@ jobs:
         with:
           name: my-app-release
           path: build/app/outputs/flutter-apk/app-release.apk
-
 
