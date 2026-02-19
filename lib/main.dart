@@ -288,3 +288,5 @@ class SettingsPage extends StatelessWidget {
   Widget _tile(IconData i, String t, VoidCallback tap) => ListTile(leading: Icon(i), title: Text(t), trailing: const Icon(Icons.arrow_forward_ios, size: 14), onTap: tap);
 }
 
+
+
